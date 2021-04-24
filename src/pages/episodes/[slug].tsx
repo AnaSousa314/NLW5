@@ -26,7 +26,14 @@ type EpisodeProps = {
 }
 
 export default function Episode({episode}: EpisodeProps){
+  /* 
+  Usado quando o fallback é true
   const router = useRouter();
+
+  // enquanto o cliente/browser busca os dados
+  if (router.isFallback) {
+    return <p>Carregando...</p>
+  } */
   
   return(
     <div className={styles.episode}>
@@ -61,9 +68,26 @@ export default function Episode({episode}: EpisodeProps){
   )
 }
 
+// toda rota que tiver parametros dinamicos, colchetes [], como o [slug], deve ter método o getStaticPaths
 export const getStaticPaths: GetStaticPaths = async()=>{
+
+const {data} = await api.get('episodes',{
+  params: {
+    _limit: 12,
+    _sort: 'published_at',
+    _order: 'desc'
+  }
+})
+
+const paths = data.map(episode => {
+  return {
+    params:{
+      slug: episode.id
+    }
+  }
+})
   return{
-    paths: [],
+    paths,
     fallback: 'blocking'
   }
 }
